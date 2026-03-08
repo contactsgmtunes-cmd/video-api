@@ -16,8 +16,13 @@ def analyze():
 
     try:
         ydl_opts = {
-            "quiet": True,
-            "skip_download": True
+         "quiet": True,
+    "skip_download": True,
+    "nocheckcertificate": True,
+    "geo_bypass": True,
+    "noplaylist": True,
+    "extract_flat": False
+         
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
