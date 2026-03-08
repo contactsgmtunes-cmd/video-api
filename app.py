@@ -9,31 +9,35 @@ def home():
 
 @app.route("/analyze")
 def analyze():
-
     url = request.args.get("url")
 
-    ydl_opts = {
-        "quiet": True,
-        "skip_download": True
-    }
+    if not url:
+        return jsonify({"error": "No URL provided"})
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
+    try:
+        ydl_opts = {
+            "quiet": True,
+            "skip_download": True
+        }
 
-    formats = []
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
 
-    for f in info["formats"]:
-        if f.get("url"):
-            formats.append({
-                "quality": f.get("format_note"),
-                "ext": f.get("ext"),
-                "url": f.get("url")
-            })
+        formats = []
 
-    return jsonify({
-        "title": info.get("title"),
-        "thumbnail": info.get("thumbnail"),
-        "formats": formats
-    })
+        for f in info.get("formats", []):
+            if f.get("url"):
+                formats.append({
+                    "quality": f.get("format_note"),
+                    "ext": f.get("ext"),
+                    "url": f.get("url")
+                })
 
-app.run(host="0.0.0.0", port=10000)
+        return jsonify({
+            "title": info.get("title"),
+            "thumbnail": info.get("thumbnail"),
+            "formats": formats
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
